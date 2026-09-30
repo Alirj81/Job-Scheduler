@@ -2,6 +2,7 @@
 #include <string>
 #include "Header.h"
 #include <stdexcept>
+#include <algorithm>
 // Job block
 // JOB class implementation
 JOB::JOB(int id, std::string description, int priority, int duration)
@@ -53,28 +54,32 @@ void JobManager::addJob(int id, std::string description, int priority, int durat
 int JobManager::findJob(int id) const {
     for (int i = 0; i < jobs.size(); ++i) {
         if (jobs[i].getId() == id) {
-            return i; // Return the index of the job if found instead of the job ID. I totally misunderstood what i was doing here, maybe because i forgot the other methods that need to have the index of the job in the vector, so i will return the index instead of the job id, and then in the other methods i will use this index to access the job in the vector.
+            return i; // Return the index of the job if found instead of the job id, i totally missunderstood what i was doing here, maybe because i forgot the other methods that need to have the index of the job in the vector, so i will return the index instead of the job id, and then in the other methods i will use this index to access the job in the vector.
         }
     }
     return -1; // Job not found cuz the method is int and not bool
 }
 
-int JobManager::nextJob() {
+int JobManager::nextJob() const{
     if (jobs.empty()) 
         throw std::runtime_error("No jobs available.");
     int highestPriorityIndex = 0;
     int highestpriority = jobs[0].getPriority();
+    
     for (int i = 1; i < jobs.size(); ++i) {
         if (jobs[i].getPriority() > jobs[highestPriorityIndex].getPriority()) {
             highestpriority = jobs[i].getPriority();
-            for(const auto& job : jobs){
-                if(job.getPriority()==highestpriority){
-                    return job.getId();
-                }
-            }
+            highestPriorityIndex = i;
+            
         }
-        
+            
     }
+    for(const auto& job : jobs){
+                if(job.getPriority()==highestpriority){
+                    printf("%d - ", job.getId());
+                }
+            }   
+    return jobs[highestPriorityIndex].getId();
 }
 int JobManager :: totalDuration() const {
     int total = 0;
@@ -90,4 +95,15 @@ void JobManager :: cancelJob(int id) {
         throw std::invalid_argument("Job not found.");
     }
     jobs.erase(jobs.begin() + index); // earase is a vector method. jobs.begin() + index is for accuracy for the pointer to where an element in the vector is.
+}
+// sort and print out the list of jobs at hand.
+void JobManager :: jobsbyPriority(){
+    std::stable_sort(jobs.begin(), jobs.end(), [](const JOB& a , const JOB& b){return a.getPriority() > b.getPriority();});
+    int index = 1;
+    for (const auto& job : jobs){
+        std::cout << index << " : " << job.getDescription()
+            << "\n Job ID :< " << job.getId() << " > | Duration: "
+            << job.getDuration() << " | Priority: " << job.getPriority() << '\n';
+        index++;
+    }
 }
