@@ -24,9 +24,10 @@ class JobManager {
     void addJob(int id, std::string description, int priority, int duration);
     int findJob(int id) const;
     
-    int nextJob();
+    int nextJob() const;
     int totalDuration() const;
     void cancelJob(int id);
+    void jobsbyPriority();
     private:
     std::vector<JOB> jobs;
 
